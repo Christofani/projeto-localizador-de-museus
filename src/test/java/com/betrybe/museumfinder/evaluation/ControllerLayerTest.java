@@ -24,17 +24,31 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+/**
+ * The type Controller layer test.
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("Req 05-06")
 public class ControllerLayerTest {
 
+  /**
+   * The Museums service interface.
+   */
   @MockBean
   MuseumServiceInterface museumsServiceInterface;
 
+  /**
+   * The Mock mvc.
+   */
   @Autowired
   MockMvc mockMvc;
 
+  /**
+   * Test museum creation.
+   *
+   * @throws Exception the exception
+   */
   @Test
   @DisplayName("05 - Rota POST /museums implementada")
   void testMuseumCreation() throws Exception {
@@ -60,6 +74,11 @@ public class ControllerLayerTest {
     Mockito.verify(museumsServiceInterface).createMuseum(any());
   }
 
+  /**
+   * Test get closest museum.
+   *
+   * @throws Exception the exception
+   */
   @Test
   @DisplayName("06 - Rota GET /museums/closest implementada")
   void testGetClosestMuseum() throws Exception {
@@ -67,8 +86,8 @@ public class ControllerLayerTest {
     Mockito.when(museumsServiceInterface.getClosestMuseum(any(), any())).thenReturn(museum);
 
     mockMvc.perform(
-          get("/museums/closest?lat=12.34&lng=23.45&max_dist_km=10")
-          .accept(MediaType.APPLICATION_JSON)
+            get("/museums/closest?lat=12.34&lng=23.45&max_dist_km=10")
+                .accept(MediaType.APPLICATION_JSON)
         )
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
