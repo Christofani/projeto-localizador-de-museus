@@ -1,7 +1,6 @@
 package com.betrybe.museumfinder.controller;
 
 import com.betrybe.museumfinder.dto.MuseumDto;
-import com.betrybe.museumfinder.exception.MuseumNotFoundException;
 import com.betrybe.museumfinder.model.Coordinate;
 import com.betrybe.museumfinder.model.Museum;
 import com.betrybe.museumfinder.service.MuseumServiceInterface;
@@ -37,13 +36,13 @@ public class MuseumController {
   /**
    * Create museum response entity.
    *
-   * @param museumDto the museum dto
+   * @param newMuseum the museum dto
    * @return the response entity
    */
   @PostMapping
-  public ResponseEntity<Museum> createMuseum(@RequestBody MuseumDto museumDto) {
-    Museum newMuseum = museumService.createMuseum(convertToModel(museumDto));
-    return new ResponseEntity<>(newMuseum, HttpStatus.CREATED);
+  public ResponseEntity<Museum> createMuseum(@RequestBody Museum newMuseum) {
+    Museum createdMuseum = museumService.createMuseum(newMuseum);
+    return ResponseEntity.status(HttpStatus.CREATED).body(createdMuseum);
   }
 
   /**
@@ -55,30 +54,15 @@ public class MuseumController {
    * @return the closest museum
    */
   @GetMapping("/closest")
-  public ResponseEntity<MuseumDto> getClosestMuseum(
+  public ResponseEntity<Museum> getClosestMuseum(
       @RequestParam(name = "lat") double latitude,
       @RequestParam(name = "lng") double longitude,
       @RequestParam(name = "max_dist_km") double maxDistanceKm) {
 
-    try {
-      Coordinate coordinate = new Coordinate(latitude, longitude);
-      Museum closestMuseum = museumService.getClosestMuseum(coordinate, maxDistanceKm);
+    Coordinate coordinate = new Coordinate(latitude, longitude);
 
-      MuseumDto museumDto = new MuseumDto(
-          closestMuseum.getId(),
-          closestMuseum.getName(),
-          closestMuseum.getDescription(),
-          closestMuseum.getAddress(),
-          closestMuseum.getCollectionType(),
-          closestMuseum.getSubject(),
-          closestMuseum.getUrl(),
-          closestMuseum.getCoordinate()
-      );
-
-      return new ResponseEntity<>(museumDto, HttpStatus.OK);
-    } catch (MuseumNotFoundException e) {
-      return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
+    Museum closestMuseum = museumService.getClosestMuseum(coordinate, maxDistanceKm);
+    return ResponseEntity.ok(closestMuseum);
   }
 
   private Museum convertToModel(MuseumDto museumDto) {
@@ -92,5 +76,18 @@ public class MuseumController {
     museum.setUrl(museumDto.url());
     museum.setCoordinate(museumDto.coordinate());
     return museum;
+  }
+
+  private MuseumDto convertToDto(Museum museum) {
+    return new MuseumDto(
+        museum.getId(),
+        museum.getName(),
+        museum.getDescription(),
+        museum.getAddress(),
+        museum.getCollectionType(),
+        museum.getSubject(),
+        museum.getUrl(),
+        museum.getCoordinate()
+    );
   }
 }
