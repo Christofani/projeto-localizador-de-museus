@@ -1,5 +1,6 @@
 package com.betrybe.museumfinder.controller;
 
+import com.betrybe.museumfinder.dto.MuseumCreationDto;
 import com.betrybe.museumfinder.dto.MuseumDto;
 import com.betrybe.museumfinder.model.Coordinate;
 import com.betrybe.museumfinder.model.Museum;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +35,12 @@ public class MuseumController {
     this.museumService = museumService;
   }
 
+  @GetMapping("/{id}")
+  public ResponseEntity<Museum> getMuseumById(@PathVariable Long id) {
+    Museum museum = museumService.getMuseum(id);
+    return ResponseEntity.status(HttpStatus.OK).body(museum);
+  }
+
   /**
    * Create museum response entity.
    *
@@ -54,7 +62,7 @@ public class MuseumController {
    * @return the closest museum
    */
   @GetMapping("/closest")
-  public ResponseEntity<Museum> getClosestMuseum(
+  public ResponseEntity<MuseumCreationDto> getClosestMuseum(
       @RequestParam(name = "lat") double latitude,
       @RequestParam(name = "lng") double longitude,
       @RequestParam(name = "max_dist_km") double maxDistanceKm) {
@@ -62,32 +70,16 @@ public class MuseumController {
     Coordinate coordinate = new Coordinate(latitude, longitude);
 
     Museum closestMuseum = museumService.getClosestMuseum(coordinate, maxDistanceKm);
-    return ResponseEntity.ok(closestMuseum);
-  }
 
-  private Museum convertToModel(MuseumDto museumDto) {
-    Museum museum = new Museum();
-    museum.setId(museumDto.id());
-    museum.setName(museumDto.name());
-    museum.setDescription(museumDto.description());
-    museum.setAddress(museumDto.address());
-    museum.setCollectionType(museumDto.collectionType());
-    museum.setSubject(museumDto.subject());
-    museum.setUrl(museumDto.url());
-    museum.setCoordinate(museumDto.coordinate());
-    return museum;
-  }
-
-  private MuseumDto convertToDto(Museum museum) {
-    return new MuseumDto(
-        museum.getId(),
-        museum.getName(),
-        museum.getDescription(),
-        museum.getAddress(),
-        museum.getCollectionType(),
-        museum.getSubject(),
-        museum.getUrl(),
-        museum.getCoordinate()
+    MuseumCreationDto museumDto = new MuseumCreationDto(
+        closestMuseum.getName(),
+        closestMuseum.getDescription(),
+        closestMuseum.getAddress(),
+        closestMuseum.getCollectionType(),
+        closestMuseum.getSubject(),
+        closestMuseum.getUrl(),
+        closestMuseum.getCoordinate()
     );
+    return ResponseEntity.status(HttpStatus.OK).body(museumDto);
   }
 }

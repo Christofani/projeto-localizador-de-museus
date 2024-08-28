@@ -86,4 +86,34 @@ public class ServiceTest {
     assertThrows(MuseumNotFoundException.class,
         () -> museumService.getClosestMuseum(farAwayLocation, maxDistance));
   }
+
+  @Test
+  public void shouldGetMuseumSuccessfully() {
+    // Arrange
+    Museum museum = new Museum();
+    museum.setName("Museu de Arte Moderna");
+    museum.setCoordinate(new Coordinate(-23.561684, -46.655981));
+
+    // Save museum to the database
+    Museum savedMuseum = museumService.createMuseum(museum);
+
+    // Act
+    Museum retrievedMuseum = museumService.getMuseum(savedMuseum.getId());
+
+    // Assert
+    assertNotNull(retrievedMuseum);
+    assertEquals(savedMuseum.getId(), retrievedMuseum.getId());
+    assertEquals("Museu de Arte Moderna", retrievedMuseum.getName());
+    assertEquals(new Coordinate(-23.561684, -46.655981), retrievedMuseum.getCoordinate());
+  }
+
+  @Test
+  public void shouldThrowMuseumNotFoundExceptionForNonExistentMuseum() {
+    // Arrange
+    Long nonExistentId = 999L;
+
+    // Act & Assert
+    assertThrows(MuseumNotFoundException.class,
+        () -> museumService.getMuseum(nonExistentId));
+  }
 }
