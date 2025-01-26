@@ -60,8 +60,8 @@ public class MuseumFakeDatabase {
     return newMuseum;
   }
 
-  public Museum deleteMuseum(Long id) {
-    return museums.remove(id);
+  public void deleteMuseum(Long id) {
+    museums.remove(id);
   }
 
   private Museum deepCopy(Museum museum) {
@@ -78,15 +78,11 @@ public class MuseumFakeDatabase {
    */
   public Optional<Museum> getClosestMuseum(Coordinate coordinate, Double maxDistance) {
     return museums.values().stream()
-        // Map museum to entries with distance
         .map(museum -> Map.entry(museum, coordinateDistance(museum.getCoordinate(), coordinate)))
-        // filter based on distance (map value)
         .filter(entry -> entry.getValue() <= maxDistance)
-        // sort by distance (map value)
+
         .sorted(Comparator.comparingDouble(Entry::getValue))
-        // map entry back to Museum
         .map(Entry::getKey)
-        // get first, if it exists
         .findFirst();
   }
 
